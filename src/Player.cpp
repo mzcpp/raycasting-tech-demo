@@ -122,7 +122,7 @@ void Player::Render()
 	// SDL_SetRenderDrawColor(game_->renderer_, 0xff, 0xff, 0xff, 0xff);
 	// SDL_RenderFillRectF(game_->renderer_, &player);
 
-	SDL_SetRenderDrawColor(game_->renderer_, 0xff, 0x00, 0x00, 0xff);
+	SDL_SetRenderDrawColor(game_->renderer_, 0xff, 0xff, 0xff, 0xff);
 	
 	const int x1 = 0;
 	const int x2 = constants::screen_width - 1;
