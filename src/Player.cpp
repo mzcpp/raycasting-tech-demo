@@ -106,10 +106,15 @@ void Player::Tick()
 		}
 	}
 
-	if ((moving_forwards_ || moving_backwards_) && !level_->GetTile(position_.x_ + velocity_.x_, position_.y_ + velocity_.y_)->is_wall_)
+	if (moving_forwards_ || moving_backwards_)
 	{
-		position_.x_ += velocity_.x_;
-		position_.y_ += velocity_.y_;
+		const Tile* next_tile = level_->GetTile(position_.x_ + velocity_.x_, position_.y_ + velocity_.y_);
+
+		if (next_tile != nullptr && !next_tile->is_wall_)
+		{
+			position_.x_ += velocity_.x_;
+			position_.y_ += velocity_.y_;
+		}
 	}
 }
 
