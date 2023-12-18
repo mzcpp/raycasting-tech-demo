@@ -178,7 +178,8 @@ void Player::CastRayLines()
 void Player::DigitalDifferentialAnalysis(int x, Vect2d<double> ray_dir)
 {
 	Vect2d<int> map_check = { static_cast<int>(position_.x_), static_cast<int>(position_.y_) };
-	const Vect2d<double> ray_step_size = { std::abs(1 / ray_dir.x_), std::abs(1 / ray_dir.y_) };
+	// const Vect2d<double> ray_step_size = { std::abs(1 / ray_dir.x_), std::abs(1 / ray_dir.y_) };
+	const Vect2d<double> ray_step_size = { std::sqrt(1 + ((ray_dir.y_ / ray_dir.x_) * (ray_dir.y_ / ray_dir.x_))), std::sqrt(1 + ((ray_dir.x_ / ray_dir.y_) * (ray_dir.x_ / ray_dir.y_))) };
 	Vect2d<double> ray_length = { 0.0, 0.0 };
 	Vect2d<int> step = { 0, 0 };
 
@@ -235,16 +236,23 @@ void Player::DigitalDifferentialAnalysis(int x, Vect2d<double> ray_dir)
 	assert(wall_side != -1);
 
 	Tile* tile_hit = level_->GetTile(map_check.x_, map_check.y_);
-	double wall_dist = 0.0;
 
 	if (wall_side == 0)
 	{
-		wall_dist = ray_length.x_ - ray_step_size.x_;
+		ray_length.x_ -= ray_step_size.x_;
 	}
 	else
 	{
-		wall_dist = ray_length.y_ - ray_step_size.y_;
+		ray_length.y_ -= ray_step_size.y_;
 	}
+	
+	const double pi = std::acos(-1);
+	const double dot = std::clamp(((ray_dir.x_ * direction_.x_) + (ray_dir.y_ * direction_.y_)) / (ray_dir.GetLength() * direction_.GetLength()), -1.0, 1.0);
+	const double rad_angle = std::acos(dot);
+	[[maybe_unused]] const double deg_angle = (rad_angle * (180.0 / pi));
+	
+	double wall_dist = wall_side == 0 ? ray_length.x_ : ray_length.y_;
+	wall_dist *= std::cos(rad_angle);	
 
 	int line_height = static_cast<int>(constants::screen_height / wall_dist);
 
