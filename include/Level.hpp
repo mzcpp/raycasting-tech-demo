@@ -84,6 +84,7 @@ public:
 
 	void AddVerticalLine(int x, int y1, int y2, SDL_Color color);
 
+	Uint32 GetPixel(SDL_Surface *surface, int x, int y);
 };
 
 #endif
