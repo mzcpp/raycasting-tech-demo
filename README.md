@@ -1,4 +1,4 @@
-# raycasting-tech-demo
+# untextured-raycasting-tech-demo
 Untextured raycasting tech demo.
 
 Sources:
