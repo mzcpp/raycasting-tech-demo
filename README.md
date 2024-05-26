@@ -1,5 +1,5 @@
-# untextured-raycasting-tech-demo
-Untextured raycasting tech demo.
+# raycasting-tech-demo
+Raycasting tech demo.
 
 Sources:
   - https://permadi.com/1996/05/ray-casting-tutorial-table-of-contents/
