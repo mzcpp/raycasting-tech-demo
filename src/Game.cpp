@@ -12,10 +12,15 @@
 Game::Game() : 
 	initialized_(false), 
 	running_(false), 
-	level_(std::make_unique<Level>(this)), 
-	player_(std::make_unique<Player>(this, level_.get()))
+	map_toggled_(true), 
+	fisheye_effect_(false)
 {
-	initialized_ = Initialize() && level_->Initialize("res/gfx/level.png");
+	initialized_ = InitializeSDL();
+
+	screen_ = std::make_unique<Screen>(this);
+	level_ = std::make_unique<Level>(this, screen_.get());
+	level_->Initialize("res/gfx/level.png");
+	player_ = std::make_unique<Player>(this, screen_.get(), level_.get());
 }
 
 Game::~Game()
@@ -23,7 +28,7 @@ Game::~Game()
 	Finalize();
 }
 
-bool Game::Initialize()
+bool Game::InitializeSDL()
 {
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
@@ -137,6 +142,17 @@ void Game::HandleEvents()
 			running_ = false;
 			return;
 		}
+		if (e.type == SDL_KEYDOWN)
+		{
+			if (e.key.keysym.sym == SDLK_m)
+			{
+				map_toggled_ = !map_toggled_;
+			}
+			else if (e.key.keysym.sym == SDLK_f)
+			{
+				fisheye_effect_ = !fisheye_effect_;
+			}
+		}
 
 		player_->HandleEvent(&e);
 	}
@@ -144,18 +160,27 @@ void Game::HandleEvents()
 
 void Game::Tick()
 {
-	level_->Tick();
 	player_->Tick();
 }
 
 void Game::Render()
 {
 	SDL_RenderSetViewport(renderer_, NULL);
-	SDL_SetRenderDrawColor(renderer_, 0x00, 0x00, 0x00, 0xff);
+	SDL_SetRenderDrawColor(renderer_, 0xff, 0xff, 0xff, 0xff);
 	SDL_RenderClear(renderer_);
 
-	level_->Render();
-	player_->Render();
+	screen_->Render();
 
 	SDL_RenderPresent(renderer_);
+}
+
+std::uint32_t Game::GetColor(const SDL_Color& color)
+{
+	#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+	std::uint32_t uint32_color = (color.b << 24) + (color.g << 16) + (color.r << 8) + 255;
+	#else
+	std::uint32_t uint32_color = (255 << 24) + (color.r << 16) + (color.g << 8) + color.b;
+	#endif
+
+	return uint32_color;
 }

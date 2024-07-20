@@ -7,8 +7,9 @@
 
 #include <iostream>
 
-Level::Level(Game* game) :
+Level::Level(Game* game, Screen* screen) :
 	game_(game), 
+	screen_(screen), 
 	surface_pixels_(nullptr), 
 	pixels_(nullptr), 
 	pixel_width_(0), 
@@ -30,17 +31,6 @@ void Level::HandleEvents()
 
 void Level::Tick()
 {
-
-}
-
-void Level::Render()
-{
-	std::for_each(vertical_lines_.begin(), vertical_lines_.end(), [this](const VerticalLine& v_line)
-	{
-		SDL_SetRenderDrawColor(game_->renderer_, v_line.color_.r, v_line.color_.g, v_line.color_.b, v_line.color_.a);
-		SDL_RenderDrawLine(game_->renderer_, v_line.x_, v_line.y1_, v_line.x_, v_line.y2_);
-	});
-
 	std::for_each(board_.begin(), board_.end(), [this](Tile tile)
 	{
 		int scale_factor = 16;
@@ -48,8 +38,8 @@ void Level::Render()
 		tile.rect_.y *= scale_factor;
 		tile.rect_.w *= scale_factor;
 		tile.rect_.h *= scale_factor;
-		SDL_SetRenderDrawColor(game_->renderer_, tile.color_.r, tile.color_.g, tile.color_.b, tile.color_.a);
-		SDL_RenderFillRect(game_->renderer_, &tile.rect_);
+
+		screen_->bitmap_->DrawFillRect(tile.rect_.x, tile.rect_.y, tile.rect_.x + tile.rect_.w, tile.rect_.y + tile.rect_.h, game_->GetColor(tile.color_));
 	});
 }
 
@@ -82,7 +72,6 @@ bool Level::Initialize(const char* path)
 	}
 
 	board_.resize(GetPixelCount());
-	vertical_lines_.reserve(constants::screen_width);
 
 	int tile_x = 0;
 	int tile_y = 0;
@@ -211,15 +200,15 @@ Tile* Level::GetTile(int x, int y)
 // 		GetTile(x + tile_size_, y + tile_size_) };
 // }
 
-void Level::ClearVerticalLines()
-{
-	vertical_lines_.clear();
-}
+// void Level::ClearVerticalLines()
+// {
+// 	vertical_lines_.clear();
+// }
 
-void Level::AddVerticalLine(int x, int y1, int y2, SDL_Color color)
-{
-	vertical_lines_.emplace_back( x, y1, y2, color );
-}
+// void Level::AddVerticalLine(int x, int y1, int y2, SDL_Color color)
+// {
+// 	vertical_lines_.emplace_back( x, y1, y2, color );
+// }
 
 Uint32 Level::GetPixel(SDL_Surface *surface, int x, int y)
 {
