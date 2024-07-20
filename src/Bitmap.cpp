@@ -97,7 +97,7 @@ void Bitmap::DrawPoint(int x, int y, std::uint32_t color)
 void Bitmap::DrawLine(int x1, int y1, int x2, int y2, std::uint32_t color)
 {
     bool y_longer = false;
-	int increment_val = 0;
+    int increment_val = 0;
     int end_val = 0;
 	int short_len = y2 - y1;
 	int long_len = x2 - x1;
