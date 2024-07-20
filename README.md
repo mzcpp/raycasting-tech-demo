@@ -1,6 +1,11 @@
 # raycasting-tech-demo
 Raycasting tech demo.
 
+Controls:
+  - ARROWS to move
+  - 'm' to toggle map
+  - 'w' and 's' to increase/decrease FOV
+
 Sources:
   - https://permadi.com/1996/05/ray-casting-tutorial-table-of-contents/
   - https://lodev.org/cgtutor/raycasting.html
