@@ -8,8 +8,9 @@
 #include <iostream>
 #include <cassert>
 
-Player::Player(Game* game, Level* level) : 
+Player::Player(Game* game, Screen* screen, Level* level) : 
 	game_(game), 
+	screen_(screen), 
 	level_(level), 
 	position_(2.0f, 2.0f), 
 	velocity_(0.0f, 0.0f), 
@@ -83,7 +84,7 @@ void Player::HandleEvent(SDL_Event* e)
 
 void Player::Tick()
 {	
-	level_->ClearVerticalLines();
+	screen_->bitmap_->Clear();
 	CastRayLines();
 
 	if (rotating_)
@@ -116,33 +117,15 @@ void Player::Tick()
 			position_.y_ += velocity_.y_;
 		}
 	}
-}
 
-void Player::Render()
-{
-	SDL_RenderSetViewport(game_->renderer_, NULL);
-
-	int scale_factor = 16;
-	// SDL_FRect player = { position_.x_ * static_cast<float>(scale_factor), position_.y_ * static_cast<float>(scale_factor), static_cast<float>(scale_factor), static_cast<float>(scale_factor) };
-	// SDL_SetRenderDrawColor(game_->renderer_, 0xff, 0xff, 0xff, 0xff);
-	// SDL_RenderFillRectF(game_->renderer_, &player);
-
-	SDL_SetRenderDrawColor(game_->renderer_, 0xff, 0xff, 0xff, 0xff);
-	
-	const int x1 = 0;
-	const int x2 = constants::screen_width - 1;
-
-	const double ray_dir_x1 = direction_.x_ + plane_.x_ * (((2 * x1) / static_cast<double>(constants::screen_width)) - 1);
-	const double ray_dir_y1 = direction_.y_ + plane_.y_ * (((2 * x1) / static_cast<double>(constants::screen_width)) - 1);
-
-	const double ray_dir_x2 = direction_.x_ + plane_.x_ * (((2 * x2) / static_cast<double>(constants::screen_width)) - 1);
-	const double ray_dir_y2 = direction_.y_ + plane_.y_ * (((2 * x2) / static_cast<double>(constants::screen_width)) - 1);
-
-	const float pos_x_offset = position_.x_ * scale_factor;
-	const float pos_y_offset = position_.y_ * scale_factor;
-
-	SDL_RenderDrawLineF(game_->renderer_, pos_x_offset, pos_y_offset, pos_x_offset + (ray_dir_x1 * scale_factor), pos_y_offset + (ray_dir_y1 * scale_factor));
-	SDL_RenderDrawLineF(game_->renderer_, pos_x_offset, pos_y_offset, pos_x_offset + (ray_dir_x2 * scale_factor), pos_y_offset + (ray_dir_y2 * scale_factor));
+	if (game_->map_toggled_)
+	{
+		level_->Tick();
+		const int scale_factor = 16;
+		const std::uint32_t color1 = game_->GetColor({ 0xff, 0xff, 0xff, 0xff });
+		screen_->bitmap_->DrawLine(position_.x_ * scale_factor, position_.y_ * scale_factor, (position_.x_ + direction_.x_ + plane_.x_) * scale_factor, (position_.y_ + direction_.y_ + plane_.y_) * scale_factor, color1);
+		screen_->bitmap_->DrawLine(position_.x_ * scale_factor, position_.y_ * scale_factor, (position_.x_ + direction_.x_ - plane_.x_) * scale_factor, (position_.y_ + direction_.y_ - plane_.y_) * scale_factor, color1);
+	}
 }
 
 Vect2d<float> Player::RotatePoint(const Vect2d<float>& rotating_point, const Vect2d<float>& pivot, int degrees)
@@ -178,8 +161,17 @@ void Player::CastRayLines()
 void Player::DigitalDifferentialAnalysis(int x, Vect2d<double> ray_dir)
 {
 	Vect2d<int> map_check = { static_cast<int>(position_.x_), static_cast<int>(position_.y_) };
-	// const Vect2d<double> ray_step_size = { std::abs(1 / ray_dir.x_), std::abs(1 / ray_dir.y_) };
-	const Vect2d<double> ray_step_size = { std::sqrt(1 + ((ray_dir.y_ / ray_dir.x_) * (ray_dir.y_ / ray_dir.x_))), std::sqrt(1 + ((ray_dir.x_ / ray_dir.y_) * (ray_dir.x_ / ray_dir.y_))) };
+	Vect2d<double> ray_step_size = { 0.0, 0.0 };
+
+	if (game_->fisheye_effect_)
+	{
+		ray_step_size = { std::abs(1 / ray_dir.x_), std::abs(1 / ray_dir.y_) };
+	}
+	else
+	{
+		ray_step_size = { std::sqrt(1 + ((ray_dir.y_ / ray_dir.x_) * (ray_dir.y_ / ray_dir.x_))), std::sqrt(1 + ((ray_dir.x_ / ray_dir.y_) * (ray_dir.x_ / ray_dir.y_))) };
+	}
+
 	Vect2d<double> ray_length = { 0.0, 0.0 };
 	Vect2d<int> step = { 0, 0 };
 
@@ -279,5 +271,5 @@ void Player::DigitalDifferentialAnalysis(int x, Vect2d<double> ray_dir)
 		color.b /= 2;
 	}
 
-	level_->AddVerticalLine(x, draw_start, draw_end, color);
+	screen_->bitmap_->DrawLine(x, draw_start, x, draw_end, game_->GetColor(color));
 }

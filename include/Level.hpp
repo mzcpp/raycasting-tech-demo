@@ -14,31 +14,18 @@ struct Tile
 	SDL_Color color_;
 };
 
-struct VerticalLine
-{
-	VerticalLine() = default;
-
-	VerticalLine(int x, int y1, int y2, SDL_Color color) : x_(x), y1_(y1), y2_(y2), color_(color)
-	{
-	}
-
-	int x_;
-	int y1_;
-	int y2_;
-	SDL_Color color_;
-};
-
 class Game;
-
+class Screen;
+  
 class Level
 {
 private:
 	Game* game_;
+	Screen* screen_;
 	SDL_Surface* surface_pixels_;
 	Uint32* pixels_;
 
 	std::vector<Tile> board_;
-	std::vector<VerticalLine> vertical_lines_;
 
 	int pixel_width_;
 	int pixel_height_;
@@ -46,7 +33,7 @@ private:
 	int tile_size_;
 
 public:
-	Level(Game* game);
+	Level(Game* game, Screen* screen);
 	
 	~Level();
 
@@ -54,8 +41,6 @@ public:
 	
 	void Tick();
 	
-	void Render();
-
 	bool Load(const char* path);
 
 	bool Initialize(const char* path);
@@ -79,10 +64,6 @@ public:
 	Tile* GetTile(int x, int y);
 
 	// std::vector<Tile*> GetNeighborTiles(int x, int y);
-
-	void ClearVerticalLines();
-
-	void AddVerticalLine(int x, int y1, int y2, SDL_Color color);
 
 	Uint32 GetPixel(SDL_Surface *surface, int x, int y);
 };

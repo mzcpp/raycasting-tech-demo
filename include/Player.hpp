@@ -7,12 +7,14 @@
 
 class Game;
 class Level;
+class Screen;
 struct Tile;
 
 class Player
 {
 private:
 	Game* game_;
+	Screen* screen_;
 	Level* level_;
 
 	Vect2d<float> position_;
@@ -28,15 +30,13 @@ private:
 	bool moving_backwards_;
 
 public:
-	Player(Game* game, Level* level);
+	Player(Game* game, Screen* screen, Level* level);
 
 	~Player();
 
 	void HandleEvent(SDL_Event* e);
 
 	void Tick();
-
-	void Render();
 
 	Vect2d<float> RotatePoint(const Vect2d<float>& rotating_point, const Vect2d<float>& pivot, int degrees);
 
