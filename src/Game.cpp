@@ -160,6 +160,7 @@ void Game::HandleEvents()
 
 void Game::Tick()
 {
+	screen_->bitmap_->Clear();
 	player_->Tick();
 }
 

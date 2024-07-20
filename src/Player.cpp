@@ -102,7 +102,6 @@ void Player::HandleEvent(SDL_Event* e)
 
 void Player::Tick()
 {
-	screen_->bitmap_->Clear();
 	CastRayLines();
 
 	if (rotating_)
