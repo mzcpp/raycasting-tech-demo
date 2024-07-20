@@ -18,7 +18,6 @@ public:
     Screen(Game* game);
 
     void Render();
-
 };
 
 #endif

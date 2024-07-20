@@ -56,6 +56,24 @@ void Player::HandleEvent(SDL_Event* e)
 			rotating_ = true;
 			rotating_degrees_ = rotation_speed_;
 		}
+		else if (e->key.keysym.sym == SDLK_w)
+		{
+			const double plane_len = plane_.GetLength();
+
+			if (plane_len < 2.0)
+			{
+				plane_.SetLength(plane_len + 0.1);
+			}
+		}
+		else if (e->key.keysym.sym == SDLK_s)
+		{
+			const double plane_len = plane_.GetLength();
+
+			if (plane_len > 0.3)
+			{
+				plane_.SetLength(plane_len - 0.1);
+			}
+		}
 	}
 
 	if (e->type == SDL_KEYUP)
@@ -83,7 +101,7 @@ void Player::HandleEvent(SDL_Event* e)
 }
 
 void Player::Tick()
-{	
+{
 	screen_->bitmap_->Clear();
 	CastRayLines();
 

@@ -43,7 +43,6 @@ public:
 	void Render();
 
 	std::uint32_t GetColor(const SDL_Color& color);
-	
 };
 
 #endif
