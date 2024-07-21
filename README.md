@@ -4,6 +4,7 @@ Raycasting tech demo.
 Controls:
   - ARROWS to move
   - 'm' to toggle map
+  - 'f' to toggle the 'fisheye' view
   - 'w' and 's' to increase/decrease FOV
 
 Sources:
