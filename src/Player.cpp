@@ -180,7 +180,7 @@ void Player::DigitalDifferentialAnalysis(int x, Vect2d<double> ray_dir)
 	Vect2d<int> map_check = { static_cast<int>(position_.x_), static_cast<int>(position_.y_) };
 	Vect2d<double> ray_step_size = { 0.0, 0.0 };
 
-	if (game_->fisheye_effect_)
+	if (game_->fisheye_effect_toggled_)
 	{
 		ray_step_size = { std::abs(1 / ray_dir.x_), std::abs(1 / ray_dir.y_) };
 	}
@@ -264,15 +264,15 @@ void Player::DigitalDifferentialAnalysis(int x, Vect2d<double> ray_dir)
 	wall_dist *= std::cos(rad_angle);	
 
 	int line_height = static_cast<int>(constants::screen_height / wall_dist);
-
-	int draw_start = -line_height / 2 + constants::screen_height / 2;
+	int pitch = 100;
+	int draw_start = -line_height / 2 + constants::screen_height / 2 + pitch;
 
 	if (draw_start < 0) 
 	{
 		draw_start = 0;
 	}
 	
-	int draw_end = line_height / 2 + constants::screen_height / 2;
+	int draw_end = line_height / 2 + constants::screen_height / 2 + pitch;
 	
 	if (draw_end >= constants::screen_height)
 	{
@@ -281,12 +281,92 @@ void Player::DigitalDifferentialAnalysis(int x, Vect2d<double> ray_dir)
 
 	SDL_Color color = tile_hit->color_;
 
-	if (wall_side == 1)
+	if (game_->textures_toggled_)
 	{
-		color.r /= 2;
-		color.g /= 2;
-		color.b /= 2;
-	}
+		const SDL_Color red = { 0xff, 0x00, 0x00, 0xff };
+		const SDL_Color green = { 0x00, 0xff, 0x00, 0xff };
+		const SDL_Color blue = { 0x00, 0x00, 0xff, 0xff };
+		const SDL_Color yellow = { 0xff, 0xff, 0x00, 0xff };
 
-	screen_->bitmap_->DrawLine(x, draw_start, x, draw_end, game_->GetColor(color));
+		Texture* current_texture = nullptr;
+
+		if (game_->ColorsEqual(color, red))
+		{
+			current_texture = game_->textures_[0].get();
+		}
+		else if (game_->ColorsEqual(color, green))
+		{
+			current_texture = game_->textures_[1].get();
+		}
+		else if (game_->ColorsEqual(color, blue))
+		{
+			current_texture = game_->textures_[2].get();
+		}
+		else if (game_->ColorsEqual(color, yellow))
+		{
+			current_texture = game_->textures_[3].get();
+		}
+		else
+		{
+			return;
+		}
+
+		Uint32* tex_pixels = current_texture->GetPixels32();
+
+		double wall_x = 0.0;
+		int tex_width = 64;
+		int tex_height = 64;
+
+		if (wall_side == 0)
+		{
+			wall_x = position_.y_ + wall_dist * ray_dir.y_;
+		}
+		else
+		{
+			wall_x = position_.x_ + wall_dist * ray_dir.x_;
+		}
+
+		wall_x -= std::floor(wall_x);
+
+		int tex_x = int(wall_x * double(tex_width));
+
+		if (wall_side == 0 && ray_dir.x_ > 0)
+		{
+			tex_x = tex_width - tex_x - 1;
+		}
+
+		if (wall_side == 1 && ray_dir.y_ < 0)
+		{
+			tex_x = tex_width - tex_x - 1;
+		}
+
+		double tex_step = 1.0 * tex_height / line_height;
+		double tex_pos = (draw_start - pitch - constants::screen_height / 2 + line_height - 2) * tex_step;
+
+		for (int y = draw_start; y < draw_end; ++y)
+		{
+			int tex_y = (int)tex_pos & (tex_height - 1);
+			tex_pos += tex_step;
+			Uint32 pixel_color = tex_pixels[tex_height * tex_y + tex_x];
+
+			if (wall_side == 1)
+			{
+				pixel_color = (pixel_color >> 1) & 8355711;
+			}
+
+			screen_->bitmap_->DrawPoint(x, y, pixel_color);
+		}
+
+	}
+	else
+	{
+		if (wall_side == 1)
+		{
+			color.r /= 2;
+			color.g /= 2;
+			color.b /= 2;
+		}
+
+		screen_->bitmap_->DrawLine(x, draw_start, x, draw_end, game_->GetColor(color));
+	}
 }
