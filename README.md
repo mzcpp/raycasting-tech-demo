@@ -6,6 +6,7 @@ Controls:
   - 'm' to toggle map
   - 'f' to toggle the 'fisheye' view
   - 'w' and 's' to increase/decrease FOV
+  - 't' to toggle between textured and untextured raycasting
 
 Sources:
   - https://permadi.com/1996/05/ray-casting-tutorial-table-of-contents/
