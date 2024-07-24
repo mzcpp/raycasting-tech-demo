@@ -311,7 +311,7 @@ void Player::DigitalDifferentialAnalysis(int x, Vect2d<double> ray_dir)
 			return;
 		}
 
-		Uint32* tex_pixels = current_texture->GetPixels32();
+		std::uint32_t* tex_pixels = current_texture->GetPixels32();
 
 		double wall_x = 0.0;
 		int tex_width = 64;
@@ -328,7 +328,7 @@ void Player::DigitalDifferentialAnalysis(int x, Vect2d<double> ray_dir)
 
 		wall_x -= std::floor(wall_x);
 
-		int tex_x = int(wall_x * double(tex_width));
+		int tex_x = static_cast<int>(wall_x * static_cast<double>(tex_width));
 
 		if (wall_side == 0 && ray_dir.x_ > 0)
 		{
@@ -345,9 +345,9 @@ void Player::DigitalDifferentialAnalysis(int x, Vect2d<double> ray_dir)
 
 		for (int y = draw_start; y < draw_end; ++y)
 		{
-			int tex_y = (int)tex_pos & (tex_height - 1);
+			int tex_y = static_cast<int>(tex_pos) & (tex_height - 1);
 			tex_pos += tex_step;
-			Uint32 pixel_color = tex_pixels[tex_height * tex_y + tex_x];
+			std::uint32_t pixel_color = tex_pixels[tex_height * tex_y + tex_x];
 
 			if (wall_side == 1)
 			{
