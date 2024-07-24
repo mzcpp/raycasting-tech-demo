@@ -2,18 +2,21 @@
 #include "Constants.hpp"
 #include "Player.hpp"
 #include "Level.hpp"
+#include "Texture.hpp"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
 #include <cstdint>
 #include <iostream>
+#include <memory>
 
 Game::Game() : 
 	initialized_(false), 
 	running_(false), 
 	map_toggled_(true), 
-	fisheye_effect_(false)
+	fisheye_effect_toggled_(false), 
+	textures_toggled_(false)
 {
 	initialized_ = InitializeSDL();
 
@@ -21,6 +24,16 @@ Game::Game() :
 	level_ = std::make_unique<Level>(this, screen_.get());
 	level_->Initialize("res/gfx/level.png");
 	player_ = std::make_unique<Player>(this, screen_.get(), level_.get());
+
+	for (std::size_t i = 0; i < 4; ++i)
+	{
+		textures_.emplace_back(std::make_unique<Texture>(this));
+	}
+
+	textures_[0]->LoadPixelsFromFile("res/gfx/red_tex.png");
+	textures_[1]->LoadPixelsFromFile("res/gfx/green_tex.png");
+	textures_[2]->LoadPixelsFromFile("res/gfx/blue_tex.png");
+	textures_[3]->LoadPixelsFromFile("res/gfx/yellow_tex.png");
 }
 
 Game::~Game()
@@ -150,7 +163,11 @@ void Game::HandleEvents()
 			}
 			else if (e.key.keysym.sym == SDLK_f)
 			{
-				fisheye_effect_ = !fisheye_effect_;
+				fisheye_effect_toggled_ = !fisheye_effect_toggled_;
+			}
+			else if (e.key.keysym.sym == SDLK_t)
+			{
+				textures_toggled_ = !textures_toggled_;
 			}
 		}
 
@@ -185,3 +202,9 @@ std::uint32_t Game::GetColor(const SDL_Color& color)
 
 	return uint32_color;
 }
+
+bool Game::ColorsEqual(const SDL_Color& color1, const SDL_Color& color2)
+{
+	return color1.r == color2.r && color1.g == color2.g && color1.b == color2.b && color1.a == color2.a;
+}
+

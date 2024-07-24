@@ -4,10 +4,12 @@
 #include "Level.hpp"
 #include "Player.hpp"
 #include "Screen.hpp"
+#include "Texture.hpp"
 
 #include <SDL2/SDL.h>
 
 #include <memory>
+#include <vector>
 
 class Game
 {
@@ -20,8 +22,10 @@ private:
 	std::unique_ptr<Screen> screen_;
 
 public:
+	std::vector<std::unique_ptr<Texture>> textures_;
 	bool map_toggled_;
-	bool fisheye_effect_;
+	bool fisheye_effect_toggled_;
+	bool textures_toggled_;
 
 	SDL_Window* window_;
 	SDL_Renderer* renderer_;
@@ -43,6 +47,8 @@ public:
 	void Render();
 
 	std::uint32_t GetColor(const SDL_Color& color);
+
+	bool ColorsEqual(const SDL_Color& color1, const SDL_Color& color2);
 };
 
 #endif
