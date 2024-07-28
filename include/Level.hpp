@@ -12,6 +12,7 @@ struct Tile
 	SDL_Rect rect_;
 	bool is_wall_;
 	SDL_Color color_;
+	bool visited_;
 };
 
 class Game;
@@ -27,9 +28,9 @@ private:
 
 	std::vector<Tile> board_;
 
-	int pixel_width_;
-	int pixel_height_;
-	int pixel_count_;
+	int tiles_col_count_;
+	int tiles_row_count_;
+	int tiles_count_;
 	int tile_size_;
 
 public:
@@ -45,11 +46,19 @@ public:
 
 	bool Initialize(const char* path);
 
+	void GenerateMazeHuntAndKill();
+
+	std::vector<int> GetNeighborTilesIndices(int index);
+
+	bool BoardComplete();
+
+	void DeleteWall(std::size_t index);
+
 	void Free();
 
-	int GetPixelWidth();
+	int GetColumnCount();
 	
-	int GetPixelHeight();
+	int GetRowCount();
 	
 	int GetPixelCount();
 

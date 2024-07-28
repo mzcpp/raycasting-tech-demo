@@ -169,6 +169,10 @@ void Game::HandleEvents()
 			{
 				textures_toggled_ = !textures_toggled_;
 			}
+			else if (e.key.keysym.sym == SDLK_g)
+			{
+				level_->GenerateMazeHuntAndKill();
+			}
 		}
 
 		player_->HandleEvent(&e);
