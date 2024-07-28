@@ -14,7 +14,10 @@
 class Game
 {
 	friend class Level;
-	
+	friend class Player;
+	friend class Screen;
+	friend class Texture;
+
 private:
 	bool initialized_;
 	bool running_;
@@ -22,9 +25,8 @@ private:
 	std::unique_ptr<Level> level_;
 	std::unique_ptr<Player> player_;
 	std::unique_ptr<Screen> screen_;
-
-public:
 	std::vector<std::unique_ptr<Texture>> textures_;
+	
 	bool map_toggled_;
 	bool fisheye_effect_toggled_;
 	bool textures_toggled_;
@@ -32,6 +34,7 @@ public:
 	SDL_Window* window_;
 	SDL_Renderer* renderer_;
 	
+public:
 	Game();
 
 	~Game();
