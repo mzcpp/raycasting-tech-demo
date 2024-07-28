@@ -36,6 +36,8 @@ public:
 
 	void HandleEvent(SDL_Event* e);
 
+	void SetPos(const Vect2d<float>& new_pos);
+	
 	void Tick();
 
 	Vect2d<float> RotatePoint(const Vect2d<float>& rotating_point, const Vect2d<float>& pivot, int degrees);

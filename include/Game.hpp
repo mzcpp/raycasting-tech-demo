@@ -13,6 +13,8 @@
 
 class Game
 {
+	friend class Level;
+	
 private:
 	bool initialized_;
 	bool running_;

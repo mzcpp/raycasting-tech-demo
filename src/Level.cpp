@@ -6,17 +6,19 @@
 #include <SDL2/SDL_image.h>
 
 #include <iostream>
+#include <cstdlib>
 
 Level::Level(Game* game, Screen* screen) :
 	game_(game), 
 	screen_(screen), 
 	surface_pixels_(nullptr), 
 	pixels_(nullptr), 
-	pixel_width_(0), 
-	pixel_height_(0), 
-	pixel_count_(0), 
+	tiles_col_count_(0), 
+	tiles_row_count_(0), 
+	tiles_count_(0), 
 	tile_size_(1)
 {
+	std::srand(std::time(nullptr));
 }
 	
 Level::~Level()
@@ -57,9 +59,9 @@ bool Level::Load(const char* path)
 
 	surface_pixels_ = SDL_ConvertSurfaceFormat(surface_pixels_, SDL_GetWindowPixelFormat(game_->window_), 0);
 
-	pixel_width_ = surface_pixels_->w;
-	pixel_height_ = surface_pixels_->h;
-	pixel_count_ = pixel_width_ * pixel_height_;
+	tiles_col_count_ = surface_pixels_->w;
+	tiles_row_count_ = surface_pixels_->h;
+	tiles_count_ = tiles_col_count_ * tiles_row_count_;
 
 	return true;
 }
@@ -76,31 +78,31 @@ bool Level::Initialize(const char* path)
 	int tile_x = 0;
 	int tile_y = 0;
 
-	for (int x = 0; x < pixel_width_; ++x)
+	for (int x = 0; x < tiles_col_count_; ++x)
 	{
-		for (int y = 0; y < pixel_height_; ++y)
+		for (int y = 0; y < tiles_row_count_; ++y)
 		{
 			SDL_Color rgb;
 			Uint32 data = GetPixel(surface_pixels_, x, y);
 			SDL_GetRGB(data, surface_pixels_->format, &rgb.r, &rgb.g, &rgb.b);
 
-			const int index = y * pixel_width_ + x;
+			const int index = y * tiles_col_count_ + x;
 
 			board_[index].is_wall_ = true;
 
 			if (static_cast<int>(rgb.r) == 0 && static_cast<int>(rgb.g) == 0 && static_cast<int>(rgb.b) == 0)
 			{
-				board_[y * pixel_width_ + x].is_wall_ = false;
+				board_[y * tiles_col_count_ + x].is_wall_ = false;
 			}
 
-			board_[index].color_.r = static_cast<int>(rgb.r);
-			board_[index].color_.g = static_cast<int>(rgb.g);
-			board_[index].color_.b = static_cast<int>(rgb.b);
-			board_[index].color_.a = 255;
+			board_[index].color_.r = rgb.r;
+			board_[index].color_.g = rgb.g;
+			board_[index].color_.b = rgb.b;
+			board_[index].color_.a = 0xff;
 			board_[index].rect_.x = tile_x;
 			board_[index].rect_.y = tile_y;
 			board_[index].rect_.w = tile_size_;
-			board_[index].rect_.h = board_[index].rect_.w;
+			board_[index].rect_.h = tile_size_;
 			
 			tile_y += tile_size_;
 		}
@@ -112,6 +114,188 @@ bool Level::Initialize(const char* path)
 	return true;
 }
 
+void Level::GenerateMazeHuntAndKill()
+{
+	tiles_col_count_ = 29;
+	tiles_row_count_ = 27;
+
+	tiles_col_count_ -= tiles_col_count_ % 2;
+	++tiles_col_count_;
+
+	tiles_row_count_ -= tiles_row_count_ % 2;
+	++tiles_row_count_;
+
+	tiles_count_ = tiles_col_count_ * tiles_row_count_;
+
+	board_.clear();
+	board_.resize(tiles_count_);
+
+	int tile_x = 0;
+	int tile_y = 0;
+
+	for (int y = 0; y < tiles_row_count_; ++y)
+	{
+		for (int x = 0; x < tiles_col_count_; ++x)
+		{
+			const int index = y * tiles_col_count_ + x;
+			
+			board_[index].is_wall_ = true;
+			board_[index].color_.r = 0x00;
+			board_[index].color_.g = 0xff;
+			board_[index].color_.b = 0x00;
+			board_[index].color_.a = 0xff;
+			board_[index].rect_.x = tile_x;
+			board_[index].rect_.y = tile_y;
+			board_[index].rect_.w = tile_size_;
+			board_[index].rect_.h = tile_size_;
+
+			if (x == 0 || x == tiles_col_count_ - 1 || y == 0 || y == tiles_row_count_ - 1)
+			{
+				board_[index].color_.r = 0xff;
+				board_[index].color_.g = 0x00;
+				board_[index].color_.b = 0x00;
+			}
+
+			tile_x += tile_size_;
+
+		}
+
+		tile_y += tile_size_;
+		tile_x = 0;
+	}
+
+	int current_tile_index = 1 * tiles_col_count_ + 1;
+
+	while (!BoardComplete())
+	{
+		DeleteWall(current_tile_index);
+		const std::vector<int>& neighbor_indices = GetNeighborTilesIndices(current_tile_index);
+
+		const bool all_uncovered = std::all_of(neighbor_indices.begin(), neighbor_indices.end(), [this](int neighbor_index)
+			{
+				return !board_[neighbor_index].is_wall_;
+			});
+
+		if (neighbor_indices.empty() || all_uncovered)
+		{
+			bool found = false;
+
+			for (int y = 1; y < tiles_row_count_; y += 2)
+			{
+				for (int x = 1; x < tiles_col_count_; x += 2)
+				{
+					const int index = y * tiles_col_count_ + x;
+
+					if (!board_[index].is_wall_)
+					{
+						continue;
+					}
+
+					for (int neighbor_index : GetNeighborTilesIndices(index))
+					{
+						if (board_[neighbor_index].is_wall_)
+						{
+							continue;	
+						}
+						
+						const int delta = (neighbor_index - index) / 2;
+						DeleteWall(neighbor_index);
+						DeleteWall(index + delta);
+						current_tile_index = index;
+						break;
+					}
+
+					if (current_tile_index == index)
+					{
+						found = true;
+						break;
+					}
+				}
+				
+				if (found)
+				{
+					break;
+				}
+			}
+		}
+		else
+		{
+			int random_neighbor_index = -1;
+			
+			do 
+			{
+				random_neighbor_index = neighbor_indices[std::rand() % neighbor_indices.size()];
+			}
+			while (!board_[random_neighbor_index].is_wall_);
+
+			const int delta = (random_neighbor_index - current_tile_index) / 2;
+			
+			DeleteWall(random_neighbor_index);
+			DeleteWall(current_tile_index + delta);
+
+			current_tile_index = random_neighbor_index;
+		}
+	}
+
+	game_->player_->SetPos({ 1.5f, 1.5f });
+}
+
+bool Level::BoardComplete()
+{
+	for (int y = 1; y < tiles_row_count_; y += 2)
+	{
+		for (int x = 1; x < tiles_col_count_; x += 2)
+		{
+			if (board_[y * tiles_col_count_ + x].is_wall_)
+			{
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+
+void Level::DeleteWall(std::size_t index)
+{
+	board_[index].is_wall_ = false;
+	board_[index].color_.r = 0x00;
+	board_[index].color_.g = 0x00;
+	board_[index].color_.b = 0x00;
+}
+
+std::vector<int> Level::GetNeighborTilesIndices(int index)
+{
+	std::vector<int> result;
+
+	const int north_neighbor_index = index - (2 * tiles_col_count_);
+	const int east_neighbor_index = index + 2;
+	const int south_neighbor_index = index + (2 * tiles_col_count_);
+	const int west_neighbor_index = index - 2;
+
+	if (index > (tiles_col_count_ * 3 - 1))
+	{
+		result.push_back(north_neighbor_index);
+	}
+
+	if ((index - (tiles_col_count_ - 2)) % tiles_col_count_ != 0 && (index - (tiles_col_count_ - 3)) % tiles_col_count_ != 0)
+	{
+		result.push_back(east_neighbor_index);
+	}
+
+	if (index < (tiles_col_count_ * (tiles_row_count_ - 3) - 1))
+	{
+		result.push_back(south_neighbor_index);
+	}
+
+	if ((index - 1) % tiles_col_count_ != 0 && (index - 2) % tiles_col_count_ != 0)
+	{
+		result.push_back(west_neighbor_index);
+	}
+	
+	return result;
+}
+
 void Level::Free()
 {
 	if (surface_pixels_ != nullptr)
@@ -121,19 +305,19 @@ void Level::Free()
 	}
 }
 
-int Level::GetPixelWidth()
+int Level::GetColumnCount()
 {
-	return pixel_width_;
+	return tiles_col_count_;
 }
 	
-int Level::GetPixelHeight()
+int Level::GetRowCount()
 {
-	return pixel_height_;
+	return tiles_row_count_;
 }
 
 int Level::GetPixelCount()
 {
-	return pixel_count_;
+	return tiles_count_;
 }
 
 int Level::GetTileSize()
@@ -172,12 +356,12 @@ Uint32 Level::GetPitch32()
 
 Tile* Level::GetTile(int x, int y)
 {
-	if (x < 0 || y < 0 || x >= (GetPixelWidth() * GetTileSize()) || y >= (GetPixelHeight() * GetTileSize()))
+	if (x < 0 || y < 0 || x >= (GetColumnCount() * GetTileSize()) || y >= (GetRowCount() * GetTileSize()))
 	{
 		return nullptr;
 	}
 
-	const int index = (y / tile_size_) * GetPixelWidth() + (x / tile_size_);
+	const int index = (y / tile_size_) * GetColumnCount() + (x / tile_size_);
 
 	if (index < 0 || index >= static_cast<int>(board_.size()))
 	{

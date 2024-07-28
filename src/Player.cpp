@@ -100,10 +100,15 @@ void Player::HandleEvent(SDL_Event* e)
 	}
 }
 
+void Player::SetPos(const Vect2d<float>& new_pos)
+{
+	position_ = new_pos;
+}
+
 void Player::Tick()
 {
 	CastRayLines();
-
+	
 	if (rotating_)
 	{
 		const Vect2d<float> direction_point = { position_.x_ + direction_.x_, position_.y_ + direction_.y_ };
@@ -239,7 +244,8 @@ void Player::DigitalDifferentialAnalysis(int x, Vect2d<double> ray_dir)
 			wall_side = 1;
 		}
 
-		wall_hit = level_->GetTile(map_check.x_, map_check.y_)->is_wall_;
+		auto map_tile = level_->GetTile(map_check.x_, map_check.y_);
+		wall_hit = map_tile != nullptr && level_->GetTile(map_check.x_, map_check.y_)->is_wall_;
 	}
 
 	assert(wall_side != -1);
@@ -366,7 +372,7 @@ void Player::DigitalDifferentialAnalysis(int x, Vect2d<double> ray_dir)
 			color.g /= 2;
 			color.b /= 2;
 		}
-
+		
 		screen_->bitmap_->DrawLine(x, draw_start, x, draw_end, game_->GetColor(color));
 	}
 }
