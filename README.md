@@ -7,6 +7,7 @@ Controls:
   - 'f' to toggle the 'fisheye' view
   - 'w' and 's' to increase/decrease FOV
   - 't' to toggle between textured and untextured raycasting
+  - 'g' to generate a maze with hunt and kill algorithm
 
 Sources:
   - https://permadi.com/1996/05/ray-casting-tutorial-table-of-contents/
