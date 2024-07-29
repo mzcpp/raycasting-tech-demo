@@ -9,6 +9,10 @@ Controls:
   - 't' to toggle between textured and untextured raycasting
   - 'g' to generate a maze with hunt and kill algorithm
 
+TODO:
+
+sprites, directional sprites, doors, secrets, fog, enemies, ...
+
 Sources:
   - https://permadi.com/1996/05/ray-casting-tutorial-table-of-contents/
   - https://lodev.org/cgtutor/raycasting.html
