@@ -144,9 +144,9 @@ void Player::Tick()
 	{
 		level_->Tick();
 		const int scale_factor = 16;
-		const std::uint32_t color1 = game_->GetColor({ 0xff, 0xff, 0xff, 0xff });
-		screen_->bitmap_->DrawLine(position_.x_ * scale_factor, position_.y_ * scale_factor, (position_.x_ + direction_.x_ + plane_.x_) * scale_factor, (position_.y_ + direction_.y_ + plane_.y_) * scale_factor, color1);
-		screen_->bitmap_->DrawLine(position_.x_ * scale_factor, position_.y_ * scale_factor, (position_.x_ + direction_.x_ - plane_.x_) * scale_factor, (position_.y_ + direction_.y_ - plane_.y_) * scale_factor, color1);
+		const std::uint32_t lines_color = game_->GetColor({ 0xff, 0xff, 0xff, 0xff });
+		screen_->bitmap_->DrawLine(position_.x_ * scale_factor, position_.y_ * scale_factor, (position_.x_ + direction_.x_ + plane_.x_) * scale_factor, (position_.y_ + direction_.y_ + plane_.y_) * scale_factor, lines_color);
+		screen_->bitmap_->DrawLine(position_.x_ * scale_factor, position_.y_ * scale_factor, (position_.x_ + direction_.x_ - plane_.x_) * scale_factor, (position_.y_ + direction_.y_ - plane_.y_) * scale_factor, lines_color);
 	}
 }
 
