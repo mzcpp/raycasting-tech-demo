@@ -170,6 +170,51 @@ Vect2d<float> Player::RotatePoint(const Vect2d<float>& rotating_point, const Vec
 
 void Player::CastRayLines()
 {
+	// for (int y2 = constants::screen_height / 2 + 1; y2 < constants::screen_height; ++y2)
+	// {
+	// 	float ray_dir_x0 = direction_.x_ - plane_.x_;
+	// 	float ray_dir_y0 = direction_.y_ - plane_.y_;
+	// 	float ray_dir_x1 = direction_.x_ + plane_.x_;
+	// 	float ray_dir_y1 = direction_.y_ + plane_.y_;
+
+	// 	int p = y2 - constants::screen_height / 2;
+	// 	float pos_z = 0.5f * constants::screen_height;
+	// 	float row_distance = pos_z / p;
+
+	// 	float floor_step_x = row_distance * (ray_dir_x1 - ray_dir_x0) / constants::screen_width;
+	// 	float floor_step_y = row_distance * (ray_dir_y1 - ray_dir_y0) / constants::screen_width;
+
+	// 	float floor_x = position_.x_ + row_distance * ray_dir_x0;
+	// 	float floor_y = position_.y_ + row_distance * ray_dir_y0;
+
+
+	// 	for (int x2 = 0; x2 < constants::screen_width; ++x2)
+	// 	{
+	// 		int cell_x = static_cast<int>(floor_x);
+	// 		int cell_y = static_cast<int>(floor_y);
+
+	// 		int tx = static_cast<int>(64 * (floor_x - cell_x)) & (64 - 1);
+	// 		int ty = static_cast<int>(64 * (floor_y - cell_y)) & (64 - 1);
+
+	// 		floor_x += floor_step_x;
+	// 		floor_y += floor_step_y;
+
+	// 		// Floor
+	// 		std::uint32_t* floor_pixels = game_->textures_[4]->GetPixels32();
+
+	// 		std::uint32_t color = floor_pixels[ty * 64 + tx];
+	// 		color = (color >> 1) & 8355711;
+	// 		screen_->bitmap_->DrawPoint(x2, y2, color);
+
+	// 		// Ceiling
+	// 		std::uint32_t* ceiling_pixels = game_->textures_[5]->GetPixels32();
+	// 		color = ceiling_pixels[ty * 64 + tx];
+	// 		color = (color >> 1) & 8355711;
+	// 		screen_->bitmap_->DrawPoint(x2, constants::screen_height - y2 - 1, color);
+			
+	// 	}	
+	// }
+
 	for (int x = 0; x < constants::screen_width; ++x)
 	{
 		const double camera_x = ((2 * x) / static_cast<double>(constants::screen_width)) - 1;

@@ -25,15 +25,19 @@ Game::Game() :
 	level_->Initialize("res/gfx/level.png");
 	player_ = std::make_unique<Player>(this, screen_.get(), level_.get());
 
-	for (std::size_t i = 0; i < 4; ++i)
+	constexpr std::size_t textures_count = 6;
+
+	for (std::size_t i = 0; i < textures_count; ++i)
 	{
 		textures_.emplace_back(std::make_unique<Texture>(this));
 	}
 
-	textures_[0]->LoadPixelsFromFile("res/gfx/red_tex.png");
-	textures_[1]->LoadPixelsFromFile("res/gfx/green_tex.png");
-	textures_[2]->LoadPixelsFromFile("res/gfx/blue_tex.png");
-	textures_[3]->LoadPixelsFromFile("res/gfx/yellow_tex.png");
+	textures_[0]->LoadPixelsFromFile("res/gfx/red.png");
+	textures_[1]->LoadPixelsFromFile("res/gfx/green.png");
+	textures_[2]->LoadPixelsFromFile("res/gfx/blue.png");
+	textures_[3]->LoadPixelsFromFile("res/gfx/yellow.png");
+	textures_[4]->LoadPixelsFromFile("res/gfx/ceiling.png");
+	textures_[5]->LoadPixelsFromFile("res/gfx/floor.png");
 }
 
 Game::~Game()
